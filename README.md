@@ -8,11 +8,38 @@ chatgpt-share-md "https://chatgpt.com/share/<id>"
 
 Zero dependencies. Python 3.10+.
 
+This repository is also a **Claude Code plugin marketplace**.
+
+## Claude Code plugin
+
+Install the marketplace, then the plugin:
+
+```shell
+/plugin marketplace add schneiderjoseph/chatgpt-share-md
+/plugin install chatgpt-share-md@chatgpt-share-md
+```
+
+If the install summary asks for it, run `/reload-plugins`.
+
+Once enabled, Claude Code should **always** use the plugin skill when you paste a ChatGPT share URL (`chatgpt.com/share/...` or `chat.openai.com/share/...`) and convert it to a `.md` file.
+
+Manual skill:
+
+```shell
+/chatgpt-share-md:convert-share https://chatgpt.com/share/<id>
+```
+
+Local plugin test (no marketplace):
+
+```bash
+claude --plugin-dir ./plugins/chatgpt-share-md
+```
+
 ## Why
 
 Shared ChatGPT pages (`chatgpt.com/share/...`) are awkward to archive: the conversation is buried inside a React payload, not plain HTML text. This CLI fetches the share page, extracts the conversation, and writes readable Markdown (and optional JSON).
 
-## Install
+## Install (Python CLI)
 
 ```bash
 # From this repo
@@ -81,6 +108,14 @@ Interactive ChatGPT widgets (entity chips, image carousels, citations) are clean
 3. Resolve the compact indexed JSON graph.
 4. Read `linear_conversation` and render user/assistant turns as Markdown.
 
+## Repository layout
+
+```text
+.claude-plugin/marketplace.json   # Claude Code marketplace catalog
+plugins/chatgpt-share-md/         # Installable Claude Code plugin
+chatgpt_share_md/                 # Python package / CLI
+```
+
 ## Limitations
 
 - Works with **public** share links only.
@@ -93,6 +128,7 @@ Interactive ChatGPT widgets (entity chips, image carousels, citations) are clean
 ```bash
 python -m chatgpt_share_md --help
 pip install -e .
+claude plugin validate .
 ```
 
 No third-party runtime dependencies — stdlib only.

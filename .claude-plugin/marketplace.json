@@ -1,0 +1,29 @@
+{
+  "name": "chatgpt-share-md",
+  "owner": {
+    "name": "Schneider Joseph",
+    "url": "https://github.com/schneiderjoseph"
+  },
+  "metadata": {
+    "description": "Convert public ChatGPT share links into clean Markdown documents.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "chatgpt-share-md",
+      "source": "./plugins/chatgpt-share-md",
+      "description": "Always convert ChatGPT share links (chatgpt.com/share/...) into Markdown files.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Schneider Joseph",
+        "url": "https://github.com/schneiderjoseph"
+      },
+      "homepage": "https://github.com/schneiderjoseph/chatgpt-share-md",
+      "repository": "https://github.com/schneiderjoseph/chatgpt-share-md",
+      "license": "MIT",
+      "keywords": ["chatgpt", "markdown", "share", "export", "conversation"],
+      "category": "productivity",
+      "tags": ["chatgpt", "markdown", "export"]
+    }
+  ]
+}

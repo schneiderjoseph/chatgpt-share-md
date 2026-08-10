@@ -1,0 +1,13 @@
+{
+  "name": "chatgpt-share-md",
+  "description": "Convert public ChatGPT share links into clean Markdown. Always use when the user pastes a chatgpt.com/share/... or chat.openai.com/share/... URL.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Schneider Joseph",
+    "url": "https://github.com/schneiderjoseph"
+  },
+  "homepage": "https://github.com/schneiderjoseph/chatgpt-share-md",
+  "repository": "https://github.com/schneiderjoseph/chatgpt-share-md",
+  "license": "MIT",
+  "keywords": ["chatgpt", "markdown", "share", "export"]
+}
