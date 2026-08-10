@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chatgpt-share-md"
+version = "0.1.0"
+description = "Convert public ChatGPT share links into clean Markdown documents."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Schneider Joseph" }]
+keywords = [
+  "chatgpt",
+  "markdown",
+  "export",
+  "share",
+  "cli",
+  "openai",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Text Processing :: Markup :: Markdown",
+  "Topic :: Utilities",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/schneiderjoseph/chatgpt-share-md"
+Issues = "https://github.com/schneiderjoseph/chatgpt-share-md/issues"
+Repository = "https://github.com/schneiderjoseph/chatgpt-share-md"
+
+[project.scripts]
+chatgpt-share-md = "chatgpt_share_md.converter:run"
+
+[tool.setuptools.packages.find]
+include = ["chatgpt_share_md*"]

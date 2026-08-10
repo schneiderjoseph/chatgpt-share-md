@@ -1,0 +1,28 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tooling / IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Local exports and fixtures
+exports/
+*.html
+!examples/**
+
+# Secrets / env
+.env
+.env.*
