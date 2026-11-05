@@ -386,16 +386,89 @@ def default_output_path(conversation: dict[str, Any], output_dir: Path) -> Path:
     return output_dir / f"{slugify(title)}.md"
 
 
+def convert_html_to_markdown(
+    html: str,
+    source: str | None = None,
+    *,
+    include_tools: bool = False,
+    include_system: bool = False,
+) -> tuple[str, dict[str, Any]]:
+    """Convert raw share HTML into Markdown and metadata."""
+    chunks = extract_stream_chunks(html)
+    payload = load_indexed_payload(chunks)
+    root = (
+        resolve_indexed_payload(payload)
+        if isinstance(payload, list)
+        else payload
+    )
+    conversation = find_shared_conversation(root)
+    messages = extract_messages(
+        conversation,
+        include_tools=include_tools,
+        include_system=include_system,
+    )
+    if not messages:
+        raise ConvertError("Conversation payload found, but it contained no messages.")
+
+    markdown = build_markdown(conversation, messages, source)
+    title = conversation.get("title") or "ChatGPT conversation"
+    metadata = {
+        "title": title,
+        "slug": slugify(title),
+        "source": source,
+        "conversation_id": conversation.get("conversation_id"),
+        "created_at": format_timestamp(conversation.get("create_time")),
+        "updated_at": format_timestamp(conversation.get("update_time")),
+        "messages": messages,
+    }
+    return markdown, metadata
+
+
+def convert_source(
+    source: str,
+    timeout: int = 30,
+    *,
+    include_tools: bool = False,
+    include_system: bool = False,
+) -> tuple[str, dict[str, Any]]:
+    """Convert a URL or a file path into Markdown and metadata."""
+    html, source_url = read_source(source, timeout)
+    return convert_html_to_markdown(
+        html,
+        source=source_url or source,
+        include_tools=include_tools,
+        include_system=include_system,
+    )
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Convert a public ChatGPT share URL (or saved share HTML) "
-            "into a Markdown document."
+            "into a Markdown document, or run the web interface."
         )
     )
     parser.add_argument(
         "source",
+        nargs="?",
+        default=None,
         help="ChatGPT share URL or path to a saved share-page HTML file",
+    )
+    parser.add_argument(
+        "--serve",
+        action="store_true",
+        help="Start the web server UI",
+    )
+    parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Host to bind the web server (default: 0.0.0.0)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8080,
+        help="Port to bind the web server (default: 8080)",
     )
     parser.add_argument(
         "-o",
@@ -434,25 +507,22 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
 
+    if args.serve:
+        from .web import start_server
+
+        return start_server(host=args.host, port=args.port)
+
+    if not args.source:
+        print("error: source argument is required (or use --serve to start web UI)", file=sys.stderr)
+        return 1
+
     try:
-        html, source_url = read_source(args.source, args.timeout)
-        chunks = extract_stream_chunks(html)
-        payload = load_indexed_payload(chunks)
-        root = (
-            resolve_indexed_payload(payload)
-            if isinstance(payload, list)
-            else payload
-        )
-        conversation = find_shared_conversation(root)
-        messages = extract_messages(
-            conversation,
+        markdown, metadata = convert_source(
+            args.source,
+            timeout=args.timeout,
             include_tools=args.include_tools,
             include_system=args.include_system,
         )
-        if not messages:
-            raise ConvertError("Conversation payload found, but it contained no messages.")
-
-        markdown = build_markdown(conversation, messages, source_url or args.source)
 
         if args.stdout:
             sys.stdout.write(markdown)
@@ -461,24 +531,16 @@ def main(argv: list[str] | None = None) -> int:
         if args.output:
             out_path = Path(args.output).expanduser().resolve()
         else:
-            out_path = default_output_path(conversation, Path.cwd())
+            out_path = Path.cwd() / f"{metadata['slug']}.md"
 
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(markdown, encoding="utf-8")
-        print(f"Wrote {out_path} ({len(messages)} messages)")
+        print(f"Wrote {out_path} ({len(metadata['messages'])} messages)")
 
         if args.json:
             json_path = out_path.with_suffix(".json")
-            document = {
-                "title": conversation.get("title"),
-                "source": source_url or args.source,
-                "conversation_id": conversation.get("conversation_id"),
-                "created_at": format_timestamp(conversation.get("create_time")),
-                "updated_at": format_timestamp(conversation.get("update_time")),
-                "messages": messages,
-            }
             json_path.write_text(
-                json.dumps(document, ensure_ascii=False, indent=2) + "\n",
+                json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
                 encoding="utf-8",
             )
             print(f"Wrote {json_path}")

@@ -22,6 +22,7 @@ env/
 exports/
 *.html
 !examples/**
+!chatgpt_share_md/*.html
 
 # Secrets / env
 .env

@@ -41,6 +41,10 @@ Repository = "https://github.com/schneiderjoseph/chatgpt-share-md"
 
 [project.scripts]
 chatgpt-share-md = "chatgpt_share_md.converter:run"
+chatgpt-share-md-server = "chatgpt_share_md.web:start_server"
 
 [tool.setuptools.packages.find]
 include = ["chatgpt_share_md*"]
+
+[tool.setuptools.package-data]
+chatgpt_share_md = ["*.html"]

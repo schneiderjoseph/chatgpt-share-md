@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatGPT to Markdown — Exportez vos conversations pour Claude, Cursor, Codex & Obsidian</title>
+  <meta name="description" content="Convertissez vos liens publics ChatGPT en Markdown propre (.md) en 1 clic. Idéal pour injecter vos prompts et conversations dans Claude Code, Cursor, Codex, Copilot ou Obsidian.">
+  <meta name="keywords" content="ChatGPT to Markdown, ChatGPT export, Claude Code, Cursor AI, Codex, Markdown converter, ChatGPT share to MD, Obsidian AI chat">
+  <link rel="canonical" href="https://chatgpt-share-md.org/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ChatGPT to Markdown — Exportez vos chats pour Claude, Cursor & Codex">
+  <meta property="og:description" content="Passez d'un lien de partage ChatGPT à un Markdown (.md) parfait en 1 clic pour vos agents de code et éditeurs de notes.">
+  <meta property="og:url" content="https://chatgpt-share-md.org/">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ChatGPT to Markdown — Exporteur pour Claude, Cursor, Codex">
+  <meta name="twitter:description" content="Passez d'un lien de partage ChatGPT à un Markdown (.md) propre en 1 clic pour vos agents de code.">
+
+  <!-- AI Search & Discovery Metadata -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+
+  <!-- Structured Data JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ChatGPT to Markdown Converter",
+    "url": "https://chatgpt-share-md.org/",
+    "description": "Convert public ChatGPT share links to clean Markdown documents for AI coding agents like Claude Code, Cursor, Codex, and note apps like Obsidian.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090a0f;
+      --card-bg: #12151f;
+      --card-border: #1e2436;
+      --input-bg: #0c0e17;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #10a37f;
+      --accent-hover: #0d8c6c;
+      --accent-glow: rgba(16, 163, 127, 0.25);
+      --danger: #ef4444;
+      --code-bg: #0b0d14;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Top navigation bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.25rem 1.25rem 0.5rem;
+      width: 100%;
+      position: relative;
+      z-index: 10;
+    }
+
+    .brand-logo {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .github-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #181d2c;
+      border: 1px solid var(--card-border);
+      color: #e5e7eb;
+      text-decoration: none;
+      padding: 0.45rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .github-link:hover {
+      background: #242c44;
+      border-color: #3b4563;
+      color: #ffffff;
+    }
+
+    /* Background glow effect */
+    .bg-gradient {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(16, 163, 127, 0.12) 0%, rgba(9, 10, 15, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 4rem;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.25rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 0.875rem;
+      background: linear-gradient(180deg, #ffffff 30%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.125rem;
+      max-width: 650px;
+      margin: 0 auto;
+      line-height: 1.55;
+    }
+
+    .agent-badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .agent-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #d1d5db;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+    }
+
+    /* Main Box */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 0.75rem;
+      position: relative;
+    }
+
+    @media (max-width: 640px) {
+      .input-wrapper {
+        flex-direction: column;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    input[type="url"], input[type="text"] {
+      flex: 1;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.875rem 1.125rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    input[type="url"]:focus, input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    button.btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.875rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    button.btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      box-shadow: 0 0 16px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    button.btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Options & Fallback */
+    .extra-options {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-label input {
+      accent-color: var(--accent);
+    }
+
+    .toggle-fallback {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.875rem;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .toggle-fallback:hover {
+      color: var(--text-main);
+    }
+
+    .fallback-box {
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .fallback-box.open {
+      display: block;
+    }
+
+    textarea.html-input {
+      width: 100%;
+      height: 120px;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8125rem;
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea.html-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* Error Alert */
+    .alert-error {
+      margin-top: 1.25rem;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 0.875rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      display: none;
+      line-height: 1.4;
+    }
+
+    /* Result Area */
+    .result-container {
+      margin-top: 2rem;
+      display: none;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .result-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-count {
+      font-size: 0.75rem;
+      background: #1f293d;
+      color: #93c5fd;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-secondary {
+      background: #1f2538;
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 0.5rem 0.875rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #283049;
+      border-color: #3b4563;
+    }
+
+    .btn-secondary.copied {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    /* View Switcher */
+    .view-tabs {
+      display: flex;
+      gap: 0.25rem;
+      background: #0d0f17;
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 0.75rem;
+      width: fit-content;
+    }
+
+    .view-tab {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .view-tab.active {
+      background: #1c2233;
+      color: #ffffff;
+    }
+
+    /* Code & Preview Area */
+    .content-box {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      max-height: 520px;
+      overflow-y: auto;
+      padding: 1.25rem;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    pre.raw-markdown {
+      font-family: 'JetBrains Mono', monospace;
+      color: #e5e7eb;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+
+    .preview-markdown {
+      display: none;
+      color: #d1d5db;
+    }
+
+    .preview-markdown h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+      -webkit-text-fill-color: initial;
+    }
+
+    .preview-markdown h2 {
+      font-size: 1.25rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #38bdf8;
+      border-bottom: 1px solid #1f293d;
+      padding-bottom: 0.25rem;
+    }
+
+    .preview-markdown p {
+      margin-bottom: 0.75rem;
+    }
+
+    .preview-markdown ul {
+      margin-left: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .preview-markdown pre {
+      background: #141724;
+      padding: 0.875rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid #232a3d;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-top: 3.5rem;
+    }
+
+    .feature-card {
+      background: rgba(18, 21, 31, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      color: #fff;
+    }
+
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      color: #6b7280;
+      font-size: 0.8125rem;
+      border-top: 1px solid #141824;
+    }
+
+    footer a {
+      color: #9ca3af;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/" class="brand-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10a37f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+      ChatGPT to Markdown
+    </a>
+    <a href="https://github.com/schneiderjoseph/chatgpt-share-md" target="_blank" rel="noopener noreferrer" class="github-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      <span>GitHub</span>
+      <iframe src="https://ghbtns.com/github-btn.html?user=schneiderjoseph&repo=chatgpt-share-md&type=star&count=true&size=small" frameborder="0" scrolling="0" width="80" height="20" title="GitHub Stars" style="vertical-align: middle; border: none; overflow: hidden;"></iframe>
+    </a>
+  </div>
+
+  <div class="bg-gradient"></div>
+
+  <div class="container">
+    <header>
+      <h1>ChatGPT vers Markdown</h1>
+      <p class="subtitle">
+        Collez votre lien de chat public ChatGPT pour obtenir immédiatement un .md propre à copier dans vos agents de code et éditeurs favoris.
+      </p>
+      <div class="agent-badges">
+        <span class="agent-pill">🤖 Claude Code</span>
+        <span class="agent-pill">⚡ Cursor AI</span>
+        <span class="agent-pill">💻 Codex</span>
+        <span class="agent-pill">📝 Obsidian</span>
+        <span class="agent-pill">📓 Notion</span>
+      </div>
+    </header>
+
+    <div class="card">
+      <form id="convert-form">
+        <div class="form-group">
+          <label for="url-input" style="font-weight: 600; font-size: 0.9375rem;">Lien de partage ChatGPT</label>
+          <div class="input-wrapper">
+            <input
+              type="url"
+              id="url-input"
+              name="url"
+              placeholder="https://chatgpt.com/share/6a793ced-ed18-83ea-b2e6-66d3cf2917fb"
+              autocomplete="off"
+              autofocus
+            >
+            <button type="submit" id="submit-btn" class="btn-primary">
+              <span class="spinner" id="spinner"></span>
+              <span id="btn-text">Convertir en MD</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="extra-options">
+          <label class="checkbox-label">
+            <input type="checkbox" id="include-tools"> Inclure les appels d'outils
+          </label>
+          <button type="button" class="toggle-fallback" id="toggle-fallback-btn">
+            Lien bloqué ou protégé ? Coller le code source HTML
+          </button>
+        </div>
+
+        <div class="fallback-box" id="fallback-box">
+          <label for="html-input" style="display:block; margin-bottom: 0.4rem; font-size: 0.8125rem; color: var(--text-muted);">
+            Code source HTML de la page de partage (Clic droit > Afficher le code source) :
+          </label>
+          <textarea id="html-input" class="html-input" placeholder="<html>... Paste the page source here ...</html>"></textarea>
+        </div>
+      </form>
+
+      <div class="alert-error" id="error-box"></div>
+    </div>
+
+    <!-- Result Area -->
+    <div class="result-container" id="result-container">
+      <div class="result-header">
+        <div class="result-title">
+          <span id="result-title-text">Conversation</span>
+          <span class="badge-count" id="message-count">0 messages</span>
+        </div>
+        <div class="result-actions">
+          <button class="btn-secondary" id="copy-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span id="copy-btn-text">Copier le Markdown</span>
+          </button>
+          <button class="btn-secondary" id="download-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Télécharger .md
+          </button>
+        </div>
+      </div>
+
+      <div class="view-tabs">
+        <button class="view-tab active" id="tab-raw">Markdown Brut</button>
+        <button class="view-tab" id="tab-preview">Aperçu Visuel</button>
+      </div>
+
+      <div class="content-box">
+        <pre class="raw-markdown" id="markdown-raw"></pre>
+        <div class="preview-markdown" id="markdown-preview"></div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>🤖 Pour vos agents de code</h3>
+        <p>Transférez sans effort vos contextes de chat ChatGPT vers Claude Code, Cursor, Codex ou Copilot pour continuer à développer.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🚀 Extraction React Context</h3>
+        <p>Décode le stream controller React Router interne de ChatGPT sans exécuter de JavaScript côté client.</p>
+      </div>
+      <div class="feature-card">
+        <h3>⚡ API REST & Intégration</h3>
+        <p>Automatisez vos exports via <code>POST /api/convert</code> depuis vos scripts, raccourcis et extensions.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      Projet open-source • Retrouvez le code sur <a href="https://github.com/schneiderjoseph/chatgpt-share-md" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </p>
+  </footer>
+
+  <script>
+    const form = document.getElementById('convert-form');
+    const urlInput = document.getElementById('url-input');
+    const htmlInput = document.getElementById('html-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const spinner = document.getElementById('spinner');
+    const errorBox = document.getElementById('error-box');
+    const toggleFallbackBtn = document.getElementById('toggle-fallback-btn');
+    const fallbackBox = document.getElementById('fallback-box');
+
+    const resultContainer = document.getElementById('result-container');
+    const resultTitleText = document.getElementById('result-title-text');
+    const messageCount = document.getElementById('message-count');
+    const markdownRaw = document.getElementById('markdown-raw');
+    const markdownPreview = document.getElementById('markdown-preview');
+    const copyBtn = document.getElementById('copy-btn');
+    const copyBtnText = document.getElementById('copy-btn-text');
+    const downloadBtn = document.getElementById('download-btn');
+
+    const tabRaw = document.getElementById('tab-raw');
+    const tabPreview = document.getElementById('tab-preview');
+
+    let currentMarkdown = '';
+    let currentFilename = 'chatgpt-conversation.md';
+
+    toggleFallbackBtn.addEventListener('click', () => {
+      fallbackBox.classList.toggle('open');
+      if (fallbackBox.classList.contains('open')) {
+        htmlInput.focus();
+      }
+    });
+
+    tabRaw.addEventListener('click', () => {
+      tabRaw.classList.add('active');
+      tabPreview.classList.remove('active');
+      markdownRaw.style.display = 'block';
+      markdownPreview.style.display = 'none';
+    });
+
+    tabPreview.addEventListener('click', () => {
+      tabPreview.classList.add('active');
+      tabRaw.classList.remove('active');
+      markdownRaw.style.display = 'none';
+      markdownPreview.style.display = 'block';
+    });
+
+    // Simple markdown renderer for the preview tab
+    function renderSimpleMarkdown(md) {
+      const escape = (str) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      let html = '';
+      const lines = md.split('\n');
+      let inCodeBlock = false;
+      let codeBlockContent = '';
+
+      for (let line of lines) {
+        if (line.startsWith('```')) {
+          if (inCodeBlock) {
+            html += `<pre><code>${codeBlockContent}</code></pre>`;
+            codeBlockContent = '';
+            inCodeBlock = false;
+          } else {
+            inCodeBlock = true;
+          }
+          continue;
+        }
+
+        if (inCodeBlock) {
+          codeBlockContent += escape(line) + '\n';
+          continue;
+        }
+
+        if (line.startsWith('# ')) {
+          html += `<h1>${escape(line.slice(2))}</h1>`;
+        } else if (line.startsWith('## ')) {
+          html += `<h2>${escape(line.slice(3))}</h2>`;
+        } else if (line.startsWith('- ')) {
+          html += `<ul><li>${escape(line.slice(2))}</li></ul>`;
+        } else if (line.trim().length === 0) {
+          html += '<br>';
+        } else {
+          html += `<p>${escape(line)}</p>`;
+        }
+      }
+      return html;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorBox.style.display = 'none';
+      errorBox.textContent = '';
+
+      const url = urlInput.value.trim();
+      const html = htmlInput.value.trim();
+      const includeTools = document.getElementById('include-tools').checked;
+
+      if (!url && !html) {
+        errorBox.textContent = 'Veuillez saisir une URL de partage ChatGPT valide ou coller du code source HTML.';
+        errorBox.style.display = 'block';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      spinner.style.display = 'inline-block';
+      btnText.textContent = 'Conversion en cours...';
+
+      try {
+        const payload = {
+          include_tools: includeTools
+        };
+        if (html) {
+          payload.html = html;
+        } else {
+          payload.url = url;
+        }
+
+        const resp = await fetch('/api/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok || !data.success) {
+          throw new Error(data.error || 'Échec de la conversion');
+        }
+
+        currentMarkdown = data.markdown;
+        currentFilename = (data.metadata?.slug || 'chatgpt-conversation') + '.md';
+
+        resultTitleText.textContent = data.metadata?.title || 'Conversation exportée';
+        messageCount.textContent = (data.metadata?.messages?.length || 0) + ' messages';
+        markdownRaw.textContent = currentMarkdown;
+        markdownPreview.innerHTML = renderSimpleMarkdown(currentMarkdown);
+
+        resultContainer.style.display = 'block';
+        resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } catch (err) {
+        errorBox.textContent = 'Erreur : ' + err.message;
+        errorBox.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        spinner.style.display = 'none';
+        btnText.textContent = 'Convertir en MD';
+      }
+    });
+
+    // Copy action
+    copyBtn.addEventListener('click', async () => {
+      if (!currentMarkdown) return;
+      try {
+        await navigator.clipboard.writeText(currentMarkdown);
+        copyBtn.classList.add('copied');
+        copyBtnText.textContent = 'Copié !';
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtnText.textContent = 'Copier le Markdown';
+        }, 2000);
+      } catch (err) {
+        alert('Erreur lors de la copie dans le presse-papier');
+      }
+    });
+
+    // Download action
+    downloadBtn.addEventListener('click', () => {
+      if (!currentMarkdown) return;
+      const blob = new Blob([currentMarkdown], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentFilename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
