@@ -17,6 +17,9 @@ class WebHandler(BaseHTTPRequestHandler):
         # Standardize HTTP logging
         super().log_message(format, *args)
 
+    def do_HEAD(self) -> None:
+        self.do_GET()
+
     def do_GET(self) -> None:
         if self.path in ("/", "/index.html"):
             if not HTML_TEMPLATE_PATH.exists():
