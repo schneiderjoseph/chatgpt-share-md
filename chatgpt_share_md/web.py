@@ -39,6 +39,46 @@ class WebHandler(BaseHTTPRequestHandler):
             self.wfile.write(body)
             return
 
+        if self.path == "/robots.txt":
+            robots = (
+                "User-agent: *\n"
+                "Allow: /\n\n"
+                "# AI search & indexing bots\n"
+                "User-agent: GPTBot\n"
+                "Allow: /\n\n"
+                "User-agent: ClaudeBot\n"
+                "Allow: /\n\n"
+                "User-agent: PerplexityBot\n"
+                "Allow: /\n\n"
+                "User-agent: CCBot\n"
+                "Allow: /\n\n"
+                "Sitemap: /sitemap.xml\n"
+            ).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Length", str(len(robots)))
+            self.end_headers()
+            self.wfile.write(robots)
+            return
+
+        if self.path == "/sitemap.xml":
+            sitemap = (
+                '<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                '  <url>\n'
+                '    <loc>https://chatgpt-share-md.org/</loc>\n'
+                '    <changefreq>weekly</changefreq>\n'
+                '    <priority>1.0</priority>\n'
+                '  </url>\n'
+                '</urlset>\n'
+            ).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/xml; charset=utf-8")
+            self.send_header("Content-Length", str(len(sitemap)))
+            self.end_headers()
+            self.wfile.write(sitemap)
+            return
+
         self.send_error(404, "Not Found")
 
     def do_POST(self) -> None:

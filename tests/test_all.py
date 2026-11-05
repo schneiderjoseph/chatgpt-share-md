@@ -139,6 +139,20 @@ class TestWebServer(unittest.TestCase):
             data = json.loads(resp.read().decode("utf-8"))
             self.assertEqual(data["status"], "ok")
 
+    def test_get_robots_and_sitemap(self):
+        robots_url = f"http://127.0.0.1:{self.port}/robots.txt"
+        with urllib.request.urlopen(robots_url) as resp:
+            self.assertEqual(resp.status, 200)
+            content = resp.read().decode("utf-8")
+            self.assertIn("User-agent: GPTBot", content)
+            self.assertIn("User-agent: ClaudeBot", content)
+
+        sitemap_url = f"http://127.0.0.1:{self.port}/sitemap.xml"
+        with urllib.request.urlopen(sitemap_url) as resp:
+            self.assertEqual(resp.status, 200)
+            content = resp.read().decode("utf-8")
+            self.assertIn("<urlset", content)
+
     def test_post_convert_html(self):
         url = f"http://127.0.0.1:{self.port}/api/convert"
         payload = json.dumps({"html": SAMPLE_REACT_ROUTER_HTML}).encode("utf-8")

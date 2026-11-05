@@ -3,8 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatGPT to Markdown — Convertisseur & Exportateur MD</title>
-  <meta name="description" content="Collez votre lien de chat public ChatGPT pour obtenir immédiatement un document Markdown (.md) propre et prêt à copier.">
+  <title>ChatGPT to Markdown — Exportez vos conversations pour Claude, Cursor, Codex & Obsidian</title>
+  <meta name="description" content="Convertissez vos liens publics ChatGPT en Markdown propre (.md) en 1 clic. Idéal pour injecter vos prompts et conversations dans Claude Code, Cursor, Codex, Copilot ou Obsidian.">
+  <meta name="keywords" content="ChatGPT to Markdown, ChatGPT export, Claude Code, Cursor AI, Codex, Markdown converter, ChatGPT share to MD, Obsidian AI chat">
+  <link rel="canonical" href="https://chatgpt-share-md.org/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ChatGPT to Markdown — Exportez vos chats pour Claude, Cursor & Codex">
+  <meta property="og:description" content="Passez d'un lien de partage ChatGPT à un Markdown (.md) parfait en 1 clic pour vos agents de code et éditeurs de notes.">
+  <meta property="og:url" content="https://chatgpt-share-md.org/">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ChatGPT to Markdown — Exporteur pour Claude, Cursor, Codex">
+  <meta name="twitter:description" content="Passez d'un lien de partage ChatGPT à un Markdown (.md) propre en 1 clic pour vos agents de code.">
+
+  <!-- AI Search & Discovery Metadata -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+
+  <!-- Structured Data JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ChatGPT to Markdown Converter",
+    "url": "https://chatgpt-share-md.org/",
+    "description": "Convert public ChatGPT share links to clean Markdown documents for AI coding agents like Claude Code, Cursor, Codex, and note apps like Obsidian.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -41,6 +75,50 @@
       overflow-x: hidden;
     }
 
+    /* Top navigation bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.25rem 1.25rem 0.5rem;
+      width: 100%;
+      position: relative;
+      z-index: 10;
+    }
+
+    .brand-logo {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .github-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #181d2c;
+      border: 1px solid var(--card-border);
+      color: #e5e7eb;
+      text-decoration: none;
+      padding: 0.45rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .github-link:hover {
+      background: #242c44;
+      border-color: #3b4563;
+      color: #ffffff;
+    }
+
     /* Background glow effect */
     .bg-gradient {
       position: absolute;
@@ -57,7 +135,7 @@
     .container {
       max-width: 900px;
       margin: 0 auto;
-      padding: 2.5rem 1.25rem 4rem;
+      padding: 1.5rem 1.25rem 4rem;
       width: 100%;
       position: relative;
       z-index: 1;
@@ -66,30 +144,7 @@
 
     header {
       text-align: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(16, 163, 127, 0.1);
-      border: 1px solid rgba(16, 163, 127, 0.25);
-      color: #34d399;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      padding: 0.35rem 0.85rem;
-      border-radius: 9999px;
-      margin-bottom: 1.25rem;
-      letter-spacing: 0.02em;
-    }
-
-    .badge-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background-color: #34d399;
-      box-shadow: 0 0 8px #34d399;
+      margin-bottom: 2.25rem;
     }
 
     h1 {
@@ -106,9 +161,27 @@
     .subtitle {
       color: var(--text-muted);
       font-size: 1.125rem;
-      max-width: 600px;
+      max-width: 650px;
       margin: 0 auto;
-      line-height: 1.5;
+      line-height: 1.55;
+    }
+
+    .agent-badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .agent-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #d1d5db;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
     }
 
     /* Main Box */
@@ -451,7 +524,7 @@
 
     footer {
       text-align: center;
-      padding: 1.5rem;
+      padding: 2rem 1.5rem;
       color: #6b7280;
       font-size: 0.8125rem;
       border-top: 1px solid #141824;
@@ -482,18 +555,33 @@
   </style>
 </head>
 <body>
+  <div class="topbar">
+    <a href="/" class="brand-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10a37f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+      ChatGPT to Markdown
+    </a>
+    <a href="https://github.com/schneiderjoseph/chatgpt-share-md" target="_blank" rel="noopener noreferrer" class="github-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      <span>GitHub</span>
+      <iframe src="https://ghbtns.com/github-btn.html?user=schneiderjoseph&repo=chatgpt-share-md&type=star&count=true&size=small" frameborder="0" scrolling="0" width="80" height="20" title="GitHub Stars" style="vertical-align: middle; border: none; overflow: hidden;"></iframe>
+    </a>
+  </div>
+
   <div class="bg-gradient"></div>
 
   <div class="container">
     <header>
-      <div class="badge">
-        <span class="badge-dot"></span>
-        Zero Dépendance • Export Markdown Instantané
-      </div>
       <h1>ChatGPT vers Markdown</h1>
       <p class="subtitle">
-        Collez votre lien de partage public ChatGPT et obtenez un document Markdown (.md) parfait, prêt à être copié ou importé dans Obsidian, Notion ou votre éditeur favori.
+        Collez votre lien de chat public ChatGPT pour obtenir immédiatement un .md propre à copier dans vos agents de code et éditeurs favoris.
       </p>
+      <div class="agent-badges">
+        <span class="agent-pill">🤖 Claude Code</span>
+        <span class="agent-pill">⚡ Cursor AI</span>
+        <span class="agent-pill">💻 Codex</span>
+        <span class="agent-pill">📝 Obsidian</span>
+        <span class="agent-pill">📓 Notion</span>
+      </div>
     </header>
 
     <div class="card">
@@ -521,7 +609,7 @@
             <input type="checkbox" id="include-tools"> Inclure les appels d'outils
           </label>
           <button type="button" class="toggle-fallback" id="toggle-fallback-btn">
-            Lien bloqué ou privé ? Coller le code source HTML
+            Lien bloqué ou protégé ? Coller le code source HTML
           </button>
         </div>
 
@@ -569,22 +657,24 @@
     <!-- Features Section -->
     <div class="features-grid">
       <div class="feature-card">
-        <h3>🚀 Extraction React Router</h3>
-        <p>Décode automatiquement le stream controller de ChatGPT pour restituer les conversations sans javascript lourd côté client.</p>
+        <h3>🤖 Pour vos agents de code</h3>
+        <p>Transférez sans effort vos contextes de chat ChatGPT vers Claude Code, Cursor, Codex ou Copilot pour continuer à développer.</p>
       </div>
       <div class="feature-card">
-        <h3>📋 Prêt pour vos Notes</h3>
-        <p>Compatible avec Obsidian, Notion, Logseq, Bear et n'importe quel éditeur prenant en charge le format Markdown standard.</p>
+        <h3>🚀 Extraction React Context</h3>
+        <p>Décode le stream controller React Router interne de ChatGPT sans exécuter de JavaScript côté client.</p>
       </div>
       <div class="feature-card">
-        <h3>⚡ API REST Intégrée</h3>
-        <p>Automatisez vos exports via <code>POST /api/convert</code> avec votre propre script, raccourci iOS ou extension.</p>
+        <h3>⚡ API REST & Intégration</h3>
+        <p>Automatisez vos exports via <code>POST /api/convert</code> depuis vos scripts, raccourcis et extensions.</p>
       </div>
     </div>
   </div>
 
   <footer>
-    <p>Convertisseur ChatGPT Share vers Markdown • Conçu pour archiver & réutiliser facilement vos échanges IA.</p>
+    <p>
+      Projet open-source • Retrouvez le code sur <a href="https://github.com/schneiderjoseph/chatgpt-share-md" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </p>
   </footer>
 
   <script>
