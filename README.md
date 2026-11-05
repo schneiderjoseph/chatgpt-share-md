@@ -49,6 +49,28 @@ pip install -e .
 python -m chatgpt_share_md "https://chatgpt.com/share/<id>"
 ```
 
+## Web Interface
+
+Run the built-in web server with zero external dependencies:
+
+```bash
+chatgpt-share-md --serve
+# Or
+python -m chatgpt_share_md --serve --port 8080
+# Or
+chatgpt-share-md-server
+```
+
+Open `http://localhost:8080` in your browser to paste a ChatGPT share link, preview the result, copy the Markdown in one click, or download the `.md` file.
+
+You can also call the API programmatically:
+
+```bash
+curl -X POST http://localhost:8080/api/convert \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://chatgpt.com/share/<id>"}'
+```
+
 ## Usage
 
 ```bash
