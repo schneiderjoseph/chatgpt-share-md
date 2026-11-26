@@ -37,7 +37,7 @@ claude --plugin-dir ./plugins/chatgpt-share-md
 
 ## Why
 
-Shared ChatGPT pages (`chatgpt.com/share/...`) are awkward to archive: the conversation is buried inside a React payload, not plain HTML text. This CLI fetches the share page, extracts the conversation, and writes readable Markdown (and optional JSON).
+Shared ChatGPT pages (`chatgpt.com/share/...`) are awkward to archive. This Python CLI acquires the public share conversation through JSON or embedded HTML data and writes readable Markdown (and optional JSON).
 
 ## Install (Python CLI)
 
@@ -125,10 +125,11 @@ Interactive ChatGPT widgets (entity chips, image carousels, citations) are clean
 
 ## How it works
 
-1. Fetch the public share URL with browser-like headers (or read a local HTML file).
-2. Extract the React Router stream payload (`__reactRouterContext.streamController.enqueue(...)`), with a fallback for legacy `__NEXT_DATA__` shares.
-3. Resolve the compact indexed JSON graph.
-4. Read `linear_conversation` and render user/assistant turns as Markdown.
+1. For live public share URLs, the Python CLI and web API first attempt the unauthenticated share JSON representation at `https://chatgpt.com/backend-api/share/<id>`. This undocumented endpoint is an implementation detail, not an official supported OpenAI API.
+2. Expected network, JSON, or schema failures fall back to fetching the share HTML and using the existing React Router stream parser (`__reactRouterContext.streamController.enqueue(...)`), including legacy `__NEXT_DATA__` support and indexed JSON graph decoding.
+3. Read `linear_conversation` through the same message extraction and Markdown renderer. Explicitly visually hidden messages are excluded even with system/tool inclusion enabled.
+
+Saved local HTML uses the existing HTML parser and remains offline. The timeout applies to each request separately. The standalone Claude plugin converter is unchanged.
 
 ## Repository layout
 
