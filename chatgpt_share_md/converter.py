@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import ast
 import datetime as dt
+import http.client
 import json
 import re
 import sys
@@ -76,9 +77,76 @@ def fetch_html(url: str, timeout: int) -> str:
             charset = response.headers.get_content_charset() or "utf-8"
             return response.read().decode(charset, errors="replace")
     except urllib.error.HTTPError as exc:
-        raise ConvertError(f"HTTP {exc.code} while fetching {url}") from exc
-    except urllib.error.URLError as exc:
-        raise ConvertError(f"Could not fetch URL: {exc.reason}") from exc
+        raise ConvertError(f"HTTP {exc.code} while fetching HTML.") from exc
+    except (urllib.error.URLError, http.client.IncompleteRead, ConnectionResetError) as exc:
+        raise ConvertError("Network error while fetching HTML.") from exc
+    except TimeoutError as exc:
+        raise ConvertError("Timed out while fetching HTML.") from exc
+
+
+def extract_share_id(url: str) -> str:
+    """Extract one path segment from a supported public share URL."""
+    path = urllib.parse.urlparse(normalize_share_url(url)).path
+    match = re.fullmatch(r"/share/([^/]+)/?", path)
+    if not match:
+        raise ConvertError("Expected a /share/<id> path for public share JSON.")
+    share_id = urllib.parse.unquote(match.group(1))
+    if share_id in {".", ".."} or any(
+        char in "/\\" or ord(char) < 32 or ord(char) == 127 for char in share_id
+    ):
+        raise ConvertError("Invalid share identifier for public share JSON.")
+    return share_id
+
+
+def validate_direct_conversation(payload: Any) -> dict[str, Any]:
+    """Check fields consumed by the pipeline without requiring optional metadata."""
+    error = "Unsupported public share JSON schema."
+    if not isinstance(payload, dict) or not isinstance(payload.get("linear_conversation"), list):
+        raise ConvertError(error)
+    if payload.get("title") is not None and not isinstance(payload["title"], str):
+        raise ConvertError(error)
+    for node in payload["linear_conversation"]:
+        if not isinstance(node, dict):
+            raise ConvertError(error)
+        message = node.get("message")
+        if message is None:  # Root/placeholder nodes need not contain a message.
+            continue
+        if not isinstance(message, dict):
+            raise ConvertError(error)
+        author = message.get("author") or {}
+        content = message.get("content") or {}
+        if not isinstance(author, dict) or not isinstance(content, dict):
+            raise ConvertError(error)
+        if any(
+            author.get(key) is not None and not isinstance(author[key], str)
+            for key in ("role", "name")
+        ):
+            raise ConvertError(error)
+        if content.get("parts") is not None and not isinstance(content["parts"], list):
+            raise ConvertError(error)
+    return payload
+
+
+def fetch_share_json(url: str, timeout: int) -> dict[str, Any]:
+    """Fetch the internal public endpoint; callers must retain HTML fallback."""
+    share_id = extract_share_id(url)
+    endpoint = "https://chatgpt.com/backend-api/share/" + urllib.parse.quote(share_id, safe="")
+    request = urllib.request.Request(
+        endpoint,
+        headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            payload = json.loads(response.read())
+    except urllib.error.HTTPError as exc:
+        raise ConvertError(f"HTTP {exc.code} from public share JSON.") from exc
+    except (urllib.error.URLError, http.client.IncompleteRead, ConnectionResetError) as exc:
+        raise ConvertError("Network error while fetching public share JSON.") from exc
+    except TimeoutError as exc:
+        raise ConvertError("Timed out while fetching public share JSON.") from exc
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise ConvertError("Public share endpoint returned invalid JSON.") from exc
+    return validate_direct_conversation(payload)
 
 
 def read_source(source: str, timeout: int) -> tuple[str, str | None]:
@@ -299,6 +367,13 @@ def extract_messages(
         if not isinstance(message, dict):
             continue
 
+        metadata = message.get("metadata")
+        if (
+            isinstance(metadata, dict)
+            and metadata.get("is_visually_hidden_from_conversation") is True
+        ):
+            continue
+
         author = message.get("author") or {}
         role = author.get("role") or author.get("name") or "unknown"
         if role == "tool" and not include_tools:
@@ -402,6 +477,19 @@ def convert_html_to_markdown(
         else payload
     )
     conversation = find_shared_conversation(root)
+    return convert_conversation_to_markdown(
+        conversation, source, include_tools=include_tools, include_system=include_system
+    )
+
+
+def convert_conversation_to_markdown(
+    conversation: dict[str, Any],
+    source: str | None = None,
+    *,
+    include_tools: bool = False,
+    include_system: bool = False,
+) -> tuple[str, dict[str, Any]]:
+    """Share extraction, rendering, and export metadata across acquisition paths."""
     messages = extract_messages(
         conversation,
         include_tools=include_tools,
@@ -432,6 +520,26 @@ def convert_source(
     include_system: bool = False,
 ) -> tuple[str, dict[str, Any]]:
     """Convert a URL or a file path into Markdown and metadata."""
+    if is_url(source):
+        source_url = normalize_share_url(source)
+        try:
+            conversation = fetch_share_json(source_url, timeout)
+            return convert_conversation_to_markdown(
+                conversation, source_url,
+                include_tools=include_tools, include_system=include_system,
+            )
+        except ConvertError as json_error:
+            try:
+                html = fetch_html(source_url, timeout)
+                return convert_html_to_markdown(
+                    html, source_url,
+                    include_tools=include_tools, include_system=include_system,
+                )
+            except ConvertError as html_error:
+                raise ConvertError(
+                    f"Both strategies failed: JSON: {json_error} HTML: {html_error}"
+                ) from None
+
     html, source_url = read_source(source, timeout)
     return convert_html_to_markdown(
         html,
